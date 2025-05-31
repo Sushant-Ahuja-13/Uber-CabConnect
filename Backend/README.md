@@ -1,94 +1,108 @@
-# User Registration Endpoint Documentation
+# User API Endpoints
 
-## Endpoint
+This document describes the available user-related API endpoints in the backend of the Uber-CabConnect project. All endpoints are prefixed with `/api/user` (or as configured in your main router).
 
-`POST /users/register`
+## Endpoints
 
-## Description
+### 1. Register User
 
-Registers a new user in the system. This endpoint creates a user account with the provided details and returns an authentication token along with the user object upon successful registration.
-
-## Request Body
-
-The request body must be in JSON format and include the following fields:
-
-```
-{
-  "fullname": {
-    "firstname": "<string, required, min 3 chars>",
-    "lastname": "<string, optional, min 3 chars>"
-  },
-  "email": "<string, required, valid email>",
-  "password": "<string, required, min 6 chars>"
-}
-```
-
-### Example
-
-```
-POST /users/register
-Content-Type: application/json
-
-{
-  "fullname": {
-    "firstname": "John",
-    "lastname": "Doe"
-  },
-  "email": "john.doe@example.com",
-  "password": "password123"
-}
-```
-
-## Responses
-
-### Success
-- **Status Code:** `200 OK`
-- **Body:**
+- **URL:** `/register`
+- **Method:** `POST`
+- **Description:** Registers a new user.
+- **Request Body:**
   ```json
   {
-    "token": "<jwt_token>",
-    "user": {
-      "_id": "<user_id>",
-      "fullname": {
-        "firstname": "John",
-        "lastname": "Doe"
-      },
-      "email": "john.doe@example.com"
-      // ...other user fields
-    }
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "email": "john.doe@example.com",
+    "password": "yourpassword"
   }
   ```
-
-### Validation Error
-- **Status Code:** `400 Bad Request`
-- **Body:**
-  ```json
-  {
-    "errors": [
-      {
-        "msg": "First name must be at least 3 characters long",
-        "param": "fullname.firstname",
-        "location": "body"
-      },
-      // ...other errors
-    ]
-  }
-  ```
-
-### Missing Fields/Error
-- **Status Code:** `400 Bad Request`
-- **Body:**
-  ```json
-  {
-    "errors": [
-      {
-        "msg": "All fields are required"
+- **Success Response:**
+  - **Status:** `200 OK`
+  - **Body:**
+    ```json
+    {
+      "token": "<jwt_token>",
+      "user": {
+        "_id": "<user_id>",
+        "fullname": {
+          "firstname": "John",
+          "lastname": "Doe"
+        },
+        "email": "john.doe@example.com",
+        "socketId": null
       }
-    ]
+    }
+    ```
+- **Error Responses:**
+  - **Status:** `400 Bad Request`
+    ```json
+    {
+      "errors": [
+        { "msg": "First name must be at least 3 characters long", "param": "fullname.firstname", ... }
+      ]
+    }
+    ```
+
+### 2. Login User
+
+- **URL:** `/login`
+- **Method:** `POST`
+- **Description:** Authenticates a user and returns a JWT token.
+- **Request Body:**
+  ```json
+  {
+    "email": "john.doe@example.com",
+    "password": "yourpassword"
   }
   ```
+- **Success Response:**
+  - **Status:** `200 OK`
+  - **Body:**
+    ```json
+    {
+      "token": "<jwt_token>",
+      "user": {
+        "_id": "<user_id>",
+        "fullname": {
+          "firstname": "John",
+          "lastname": "Doe"
+        },
+        "email": "john.doe@example.com",
+        "socketId": null
+      }
+    }
+    ```
+- **Error Responses:**
+  - **Status:** `400 Bad Request`
+    ```json
+    {
+      "errors": [
+        { "msg": "Invalid email", "param": "email", ... }
+      ]
+    }
+    ```
+  - **Status:** `401 Unauthorized`
+    ```json
+    {
+      "message": "Invalid email or password"
+    }
+    ```
+
+## Validation
+
+- Email must be valid.
+- First name must be at least 3 characters.
+- Password must be at least 6 characters.
 
 ## Notes
-- The `email` must be unique.
-- The `password` is stored securely (hashed) and not returned in the response.
-- The returned `token` is a JWT for authentication in subsequent requests.
+
+- All passwords are securely hashed before storage.
+- JWT token is returned on successful registration and login.
+
+---
+
+For more details, see the source code in the `controllers/`, `models/`, `routes/`, and `services/` folders.
