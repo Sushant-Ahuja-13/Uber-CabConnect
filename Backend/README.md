@@ -1,6 +1,11 @@
-# User API Endpoints
+# API Documentation
 
-This document describes the available user-related API endpoints in the backend of the Uber-CabConnect project. All endpoints are prefixed with `/api/user` (or as configured in your main router).
+This document provides an overview of all the API endpoints available in the backend of the Uber-CabConnect project. Each endpoint is described with its purpose, request format, and response examples.
+
+## Base URL
+All endpoints are prefixed with `/api/user` (or as configured in your main router).
+
+---
 
 ## Endpoints
 
@@ -47,6 +52,8 @@ This document describes the available user-related API endpoints in the backend 
     }
     ```
 
+---
+
 ### 2. Login User
 
 - **URL:** `/login`
@@ -92,17 +99,67 @@ This document describes the available user-related API endpoints in the backend 
     }
     ```
 
-## Validation
+---
 
-- Email must be valid.
-- First name must be at least 3 characters.
-- Password must be at least 6 characters.
+### 3. Get User Profile
 
-## Notes
-
-- All passwords are securely hashed before storage.
-- JWT token is returned on successful registration and login.
+- **URL:** `/profile`
+- **Method:** `GET`
+- **Description:** Retrieves the profile of the authenticated user.
+- **Headers:**
+  - `Authorization: Bearer <jwt_token>`
+- **Success Response:**
+  - **Status:** `200 OK`
+  - **Body:**
+    ```json
+    {
+      "_id": "<user_id>",
+      "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+      },
+      "email": "john.doe@example.com",
+      "socketId": null
+    }
+    ```
+- **Error Responses:**
+  - **Status:** `401 Unauthorized`
+    ```json
+    {
+      "message": "Unauthorized Access"
+    }
+    ```
 
 ---
 
-For more details, see the source code in the `controllers/`, `models/`, `routes/`, and `services/` folders.
+### 4. Logout User
+
+- **URL:** `/logout`
+- **Method:** `GET`
+- **Description:** Logs out the authenticated user by blacklisting the JWT token.
+- **Headers:**
+  - `Authorization: Bearer <jwt_token>`
+- **Success Response:**
+  - **Status:** `200 OK`
+  - **Body:**
+    ```json
+    {
+      "message": "Logout successful"
+    }
+    ```
+- **Error Responses:**
+  - **Status:** `401 Unauthorized`
+    ```json
+    {
+      "message": "Unauthorized Access"
+    }
+    ```
+
+---
+
+## Notes
+- All passwords are securely hashed before storage.
+- JWT tokens are blacklisted upon logout and automatically removed after 24 hours.
+- Use the `Authorization` header or cookies to pass the JWT token for protected routes.
+
+For more details, see the source code in the `controllers/`, `models/`, `routes/`, and `middlewares/` folders.
