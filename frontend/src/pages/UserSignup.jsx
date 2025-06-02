@@ -1,5 +1,7 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { UserDataContext } from "../context/UserContext";
 
 const UserSignup = () => {
   //Perform 2 way binding to save data entered
@@ -7,22 +9,31 @@ const UserSignup = () => {
   const [password, setPassword] = useState("");
   const [firstname, setfirstname] = useState("");
   const [lastname, setlastname] = useState("");
-  const [userData, setUserData] = useState({});
-  const submitHandler = (e) => {
+  const navigate = useNavigate();
+  const { setUser } = useContext(UserDataContext);
+  const submitHandler = async (e) => {
     e.preventDefault();
-    setUserData({
+    const newUser = {
       fullname: {
         firstname: firstname,
         lastname: lastname,
       },
       email: email,
       password: password,
-    });
-    console.log(userData);
-    setEmail("");
-    setPassword("");
-    setfirstname("");
-    setlastname("");
+    };
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/users/register`,
+      newUser
+    );
+    if (response.status === 200) {
+      setUser(response.data.user);
+      localStorage.setItem("token", response.data.token);
+      navigate("/home");
+      setEmail("");
+      setPassword("");
+      setfirstname("");
+      setlastname("");
+    }
   };
   return (
     <div className="p-7 flex flex-col justify-between h-screen">
